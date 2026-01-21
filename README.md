@@ -1,5 +1,7 @@
 Key Things --
 
+IMPORTANT!!! Close windows defender and antiviruses to make it work. I never tried to hide this from AV. Remember, THIS IS NOT A VIRUS
+
 This is a basic project done under one hour. It works flawlessly. This is just a prototype. It will not be hidden, and create logs file inside Desktop, for easier visibility. 
 
 This is made for educational purposes. I have no intentions on hacking or stealing someone's account, and I am not responsible with these activities using this app
