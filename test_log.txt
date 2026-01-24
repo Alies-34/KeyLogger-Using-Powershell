@@ -1,0 +1,24 @@
+﻿
+
+[Pencere: KeyLogger - Dosya Gezgini] - 10:52:43
+
+
+
+[Pencere: Program Manager] - 10:52:45
+
+
+
+[Pencere: C:\WINDOWS\system32\cmd.exe] - 10:52:45
+
+
+
+[Pencere: Program Manager] - 10:52:46
+
+test
+
+[Pencere: Yeni sekme - Kişisel - Microsoft? Edge] - 10:52:53
+
+this is how keylogger will log d [BckSpc] files.w
+
+[Pencere: C:\WINDOWS\system32\cmd.exe] - 10:53:06
+
